@@ -1,0 +1,1792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EHTM Documentation - Easy HyperText Markup Language</title>
+    <style>
+        /* ============================================
+           CSS Reset & Base Styles
+           ============================================ */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --primary: #4f46e5;
+            --primary-light: #6366f1;
+            --primary-dark: #3730a3;
+            --sidebar-bg: #1e1b4b;
+            --sidebar-hover: #312e81;
+            --sidebar-active: #4338ca;
+            --content-bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #475569;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --code-bg: #1e293b;
+            --code-text: #e2e8f0;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --radius-sm: 6px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --transition: all 0.2s ease;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f1f5f9;
+            color: var(--text-primary);
+            line-height: 1.7;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ============================================
+           Sidebar Styles
+           ============================================ */
+        .sidebar {
+            width: 280px;
+            min-width: 280px;
+            background: linear-gradient(180deg, #1e1b4b 0%, #312e81 100%);
+            color: #e2e8f0;
+            height: 100vh;
+            position: sticky;
+            top: 0;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3);
+            z-index: 100;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+        }
+
+        .sidebar-header {
+            padding: 24px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.15);
+        }
+
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
+        .sidebar-logo .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #818cf8, #6366f1);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+            font-family: 'Fira Code', 'Consolas', monospace;
+        }
+
+        .sidebar-logo .logo-text {
+            font-size: 20px;
+            font-weight: 700;
+            color: white;
+            letter-spacing: -0.5px;
+        }
+
+        .sidebar-subtitle {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.5);
+            margin-top: 2px;
+        }
+
+        .sidebar-search {
+            padding: 16px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-search input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--radius-sm);
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 13px;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .sidebar-search input::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .sidebar-search input:focus {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 12px 0;
+            overflow-y: auto;
+        }
+
+        .nav-category {
+            margin-bottom: 4px;
+        }
+
+        .nav-category-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: rgba(255, 255, 255, 0.5);
+            transition: var(--transition);
+            user-select: none;
+        }
+
+        .nav-category-header:hover {
+            color: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-category-header .arrow {
+            margin-left: auto;
+            transition: transform 0.3s ease;
+            font-size: 10px;
+            opacity: 0.6;
+        }
+
+        .nav-category.open .nav-category-header .arrow {
+            transform: rotate(180deg);
+            opacity: 1;
+        }
+
+        .nav-items {
+            overflow: hidden;
+            max-height: 0;
+            transition: max-height 0.4s ease;
+        }
+
+        .nav-category.open .nav-items {
+            max-height: 600px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 20px 9px 44px;
+            cursor: pointer;
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.65);
+            transition: var(--transition);
+            border-left: 3px solid transparent;
+            position: relative;
+        }
+
+        .nav-item:hover {
+            color: white;
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .nav-item.active {
+            color: white;
+            background: rgba(99, 102, 241, 0.35);
+            border-left-color: #818cf8;
+            font-weight: 600;
+        }
+
+        .nav-item .badge {
+            margin-left: auto;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+        }
+
+        .nav-item.active .badge {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .sidebar-footer {
+            padding: 16px 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.35);
+            text-align: center;
+            letter-spacing: 0.3px;
+        }
+
+        /* ============================================
+           Main Content Styles
+           ============================================ */
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            background: var(--content-bg);
+        }
+
+        .content-header {
+            background: white;
+            border-bottom: 1px solid var(--border);
+            padding: 18px 32px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: 1px solid var(--border);
+            font-size: 20px;
+            cursor: pointer;
+            color: var(--text-primary);
+            padding: 6px 10px;
+            border-radius: var(--radius-sm);
+            transition: var(--transition);
+            line-height: 1;
+        }
+
+        .menu-toggle:hover {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .breadcrumb .separator {
+            color: #cbd5e1;
+            font-weight: 300;
+        }
+
+        #breadcrumbCategory {
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        #breadcrumbSection {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .content-body {
+            padding: 36px 40px;
+            max-width: 960px;
+            margin: 0 auto;
+        }
+
+        /* ============================================
+           Content Sections
+           ============================================ */
+        .content-section {
+            display: none;
+            animation: fadeInUp 0.35s ease;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(16px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .section-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            line-height: 1.3;
+            letter-spacing: -0.3px;
+        }
+
+        .section-description {
+            font-size: 15px;
+            color: var(--text-muted);
+            margin-bottom: 32px;
+            line-height: 1.7;
+            max-width: 700px;
+        }
+
+        .section-description strong {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 24px 28px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-md);
+        }
+
+        .card-title {
+            font-size: 17px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-text {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.8;
+            margin-bottom: 12px;
+        }
+
+        .card-text:last-child {
+            margin-bottom: 0;
+        }
+
+        /* ============================================
+           Code Blocks
+           ============================================ */
+        .code-block {
+            background: var(--code-bg);
+            color: var(--code-text);
+            border-radius: var(--radius-md);
+            padding: 20px 24px;
+            margin: 16px 0;
+            overflow-x: auto;
+            position: relative;
+            font-family: 'Fira Code', 'Cascadia Code', 'JetBrains Mono', 'Consolas', 'Monaco', monospace;
+            font-size: 13px;
+            line-height: 1.8;
+            white-space: pre;
+        }
+
+        .code-block .lang-tag {
+            position: absolute;
+            top: 10px;
+            right: 14px;
+            font-size: 10px;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.35);
+            letter-spacing: 1px;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.08);
+            padding: 3px 10px;
+            border-radius: 4px;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .code-block .copy-btn {
+            position: absolute;
+            top: 10px;
+            left: 14px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: rgba(255, 255, 255, 0.6);
+            padding: 4px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+            transition: var(--transition);
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .code-block .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.18);
+            color: white;
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .code-block .keyword { color: #c792ea; font-style: italic; }
+        .code-block .tag { color: #82aaff; }
+        .code-block .attr { color: #ffcb6b; }
+        .code-block .string { color: #c3e88d; }
+        .code-block .comment { color: #546e7a; font-style: italic; }
+        .code-block .var { color: #f78c6c; }
+        .code-block .number { color: #f78c6c; }
+        .code-block .exe { color: #89ddff; font-weight: bold; }
+
+        /* ============================================
+           Inline Code
+           ============================================ */
+        :not(.code-block) > code {
+            background: #f1f5f9;
+            color: #e11d48;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        /* ============================================
+           Tables
+           ============================================ */
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+
+        .info-table th {
+            background: #f8fafc;
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--text-primary);
+            border-bottom: 2px solid var(--border);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+
+        .info-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-secondary);
+        }
+
+        .info-table tr:hover td {
+            background: #f8fafc;
+        }
+
+        .info-table td code {
+            white-space: nowrap;
+        }
+
+        /* ============================================
+           Alerts
+           ============================================ */
+        .alert {
+            padding: 14px 18px;
+            border-radius: var(--radius-md);
+            margin: 20px 0;
+            font-size: 13.5px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            line-height: 1.7;
+        }
+
+        .alert-info {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            color: #1e40af;
+        }
+
+        .alert-success {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            color: #166534;
+        }
+
+        .alert-warning {
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+            color: #92400e;
+        }
+
+        .alert-danger {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #991b1b;
+        }
+
+        .alert-label {
+            font-weight: 700;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            flex-shrink: 0;
+            margin-top: 1px;
+            padding: 2px 8px;
+            border-radius: 3px;
+            background: rgba(0,0,0,0.06);
+        }
+
+        /* ============================================
+           Feature Grid
+           ============================================ */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px;
+            margin: 24px 0;
+        }
+
+        .feature-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 22px;
+            transition: var(--transition);
+            cursor: default;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            border-color: #c7d2fe;
+        }
+
+        .feature-card h4 {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+
+        .feature-card p {
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        /* ============================================
+           Steps
+           ============================================ */
+        .steps {
+            counter-reset: step;
+            margin: 24px 0;
+        }
+
+        .step {
+            display: flex;
+            gap: 18px;
+            margin-bottom: 22px;
+            counter-increment: step;
+        }
+
+        .step-number {
+            width: 36px;
+            height: 36px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 700;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .step-content h4 {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: var(--text-primary);
+        }
+
+        .step-content p {
+            font-size: 13.5px;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        /* ============================================
+           Comparison Grid
+           ============================================ */
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 16px 0;
+        }
+
+        .comparison-grid .col-label {
+            font-weight: 700;
+            font-size: 13px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 4px 12px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        .col-label.html-label {
+            background: #fef2f2;
+            color: #991b1b;
+        }
+
+        .col-label.ehtm-label {
+            background: #f0fdf4;
+            color: #166534;
+        }
+
+        /* ============================================
+           Responsive Design
+           ============================================ */
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                left: 0;
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .menu-toggle {
+                display: block;
+            }
+
+            .content-body {
+                padding: 20px 16px;
+            }
+
+            .section-title {
+                font-size: 22px;
+            }
+
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ============================================
+           Overlay for mobile
+           ============================================ */
+        .overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 99;
+            cursor: pointer;
+        }
+
+        .overlay.show {
+            display: block;
+        }
+
+        /* ============================================
+           Print Styles
+           ============================================ */
+        @media print {
+            .sidebar, .content-header, .overlay {
+                display: none;
+            }
+            .content-section {
+                display: block !important;
+                page-break-after: always;
+            }
+            .content-body {
+                padding: 0;
+                max-width: 100%;
+            }
+        }
+
+        /* ============================================
+           Selection Style
+           ============================================ */
+        ::selection {
+            background: #c7d2fe;
+            color: #1e1b4b;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Overlay for mobile -->
+    <div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+    <!-- ============================================ -->
+    <!-- SIDEBAR -->
+    <!-- ============================================ -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">
+                <div class="logo-icon"><h2>E<h2></div>
+                <div class="logo-text">EHTM Docs</div>
+            </div>
+            <div class="sidebar-subtitle">Easy HyperText Markup Language v3.0</div>
+        </div>
+
+        <div class="sidebar-search">
+            <input type="text" id="searchInput" placeholder="Search documentation..." oninput="searchDocs()">
+        </div>
+
+        <nav class="sidebar-nav" id="sidebarNav">
+            
+            <!-- Category: Getting Started -->
+            <div class="nav-category open" data-category="getting-started">
+                <div class="nav-category-header" onclick="toggleCategory(this)">
+                    <span>Getting Started</span>
+                    <span class="arrow">&#9660;</span>
+                </div>
+                <div class="nav-items">
+                    <div class="nav-item active" data-section="intro" onclick="showSection('intro', this)">
+                        Introduction
+                    </div>
+                    <div class="nav-item" data-section="installation" onclick="showSection('installation', this)">
+                        Installation
+                    </div>
+                    <div class="nav-item" data-section="quickstart" onclick="showSection('quickstart', this)">
+                        Quick Start
+                    </div>
+                </div>
+            </div>
+
+            <!-- Category: Basic Syntax -->
+            <div class="nav-category open" data-category="syntax">
+                <div class="nav-category-header" onclick="toggleCategory(this)">
+                    <span>Basic Syntax</span>
+                    <span class="arrow">&#9660;</span>
+                </div>
+                <div class="nav-items">
+                    <div class="nav-item" data-section="elements" onclick="showSection('elements', this)">
+                        Elements &amp; Tags
+                    </div>
+                    <div class="nav-item" data-section="attributes" onclick="showSection('attributes', this)">
+                        Attributes
+                    </div>
+                    <div class="nav-item" data-section="ids-classes" onclick="showSection('ids-classes', this)">
+                        IDs &amp; Classes
+                    </div>
+                    <div class="nav-item" data-section="text-content" onclick="showSection('text-content', this)">
+                        Text Content
+                    </div>
+                </div>
+            </div>
+
+            <!-- Category: Advanced Features -->
+            <div class="nav-category" data-category="advanced">
+                <div class="nav-category-header" onclick="toggleCategory(this)">
+                    <span>Advanced Features</span>
+                    <span class="arrow">&#9660;</span>
+                </div>
+                <div class="nav-items">
+                    <div class="nav-item" data-section="variables" onclick="showSection('variables', this)">
+                        Variables
+                    </div>
+                    <div class="nav-item" data-section="includes" onclick="showSection('includes', this)">
+                        Components (Include)
+                    </div>
+                    <div class="nav-item" data-section="comments" onclick="showSection('comments', this)">
+                        Comments
+                    </div>
+                </div>
+            </div>
+
+            <!-- Category: Output Formats -->
+            <div class="nav-category" data-category="output">
+                <div class="nav-category-header" onclick="toggleCategory(this)">
+                    <span>Output Formats</span>
+                    <span class="arrow">&#9660;</span>
+                </div>
+                <div class="nav-items">
+                    <div class="nav-item" data-section="pretty-output" onclick="showSection('pretty-output', this)">
+                        Pretty Output
+                    </div>
+                    <div class="nav-item" data-section="minified-output" onclick="showSection('minified-output', this)">
+                        Minified Output
+                    </div>
+                </div>
+            </div>
+
+            <!-- Category: CLI Commands -->
+            <div class="nav-category" data-category="cli">
+                <div class="nav-category-header" onclick="toggleCategory(this)">
+                    <span>CLI Commands</span>
+                    <span class="arrow">&#9660;</span>
+                </div>
+                <div class="nav-items">
+                    <div class="nav-item" data-section="cli-basic" onclick="showSection('cli-basic', this)">
+                        Basic Commands
+                    </div>
+                    <div class="nav-item" data-section="cli-advanced" onclick="showSection('cli-advanced', this)">
+                        Advanced Commands
+                    </div>
+                    <div class="nav-item" data-section="cli-watch" onclick="showSection('cli-watch', this)">
+                        Watch Mode
+                    </div>
+                </div>
+            </div>
+
+            <!-- Category: Examples -->
+            <div class="nav-category" data-category="examples">
+                <div class="nav-category-header" onclick="toggleCategory(this)">
+                    <span>Code Examples</span>
+                    <span class="arrow">&#9660;</span>
+                </div>
+                <div class="nav-items">
+                    <div class="nav-item" data-section="example-basic" onclick="showSection('example-basic', this)">
+                        Simple Page
+                    </div>
+                    <div class="nav-item" data-section="example-form" onclick="showSection('example-form', this)">
+                        Contact Form
+                    </div>
+                    <div class="nav-item" data-section="example-blog" onclick="showSection('example-blog', this)">
+                        Blog Page
+                    </div>
+                    <div class="nav-item" data-section="example-email" onclick="showSection('example-email', this)">
+                        Email Template
+                    </div>
+                </div>
+            </div>
+
+            <!-- Category: Reference -->
+            <div class="nav-category" data-category="reference">
+                <div class="nav-category-header" onclick="toggleCategory(this)">
+                    <span>Reference</span>
+                    <span class="arrow">&#9660;</span>
+                </div>
+                <div class="nav-items">
+                    <div class="nav-item" data-section="cheatsheet" onclick="showSection('cheatsheet', this)">
+                        Cheatsheet
+                    </div>
+                    <div class="nav-item" data-section="errors" onclick="showSection('errors', this)">
+                        Common Errors
+                    </div>
+                    <div class="nav-item" data-section="faq" onclick="showSection('faq', this)">
+                        FAQ
+                    </div>
+                </div>
+            </div>
+
+        </nav>
+
+        <div class="sidebar-footer">
+            EHTM Compiler v3.0 &copy; 2024
+        </div>
+    </aside>
+
+    <!-- ============================================ -->
+    <!-- MAIN CONTENT -->
+    <!-- ============================================ -->
+    <main class="main-content">
+        <div class="content-header">
+            <button class="menu-toggle" onclick="toggleSidebar()" aria-label="Toggle menu">
+                &#9776;
+            </button>
+            <div class="breadcrumb">
+                <span id="breadcrumbCategory">Getting Started</span>
+                <span class="separator">/</span>
+                <span id="breadcrumbSection">Introduction</span>
+            </div>
+        </div>
+
+        <div class="content-body">
+
+            <!-- ========================================== -->
+            <!-- Section: intro -->
+            <!-- ========================================== -->
+            <div class="content-section active" id="section-intro">
+                <h1 class="section-title">Introduction to EHTM</h1>
+                <p class="section-description">
+                    <strong>EHTM</strong> (Easy HyperText Markup Language) is a simple yet powerful markup language 
+                    that compiles to standard HTML. It ships as a single standalone executable 
+                    (<code>ehtm.exe</code>) requiring no external dependencies.
+                </p>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4>Standalone Executable</h4>
+                        <p>Single <code>ehtm.exe</code> file. No Python, no pip, no dependencies required.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Clean Syntax</h4>
+                        <p>No closing tags needed. Use indentation to define structure, just like Python.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Variables</h4>
+                        <p>Define reusable values once and use them throughout your templates.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Components</h4>
+                        <p>Include other files with the Include directive for modular code.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Optimized Output</h4>
+                        <p>Generate minified or pretty-printed HTML with a single command.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Cross-Platform</h4>
+                        <p>Runs on Windows, Linux, and macOS as a native executable.</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Why EHTM?</div>
+                    <div class="card-text">
+                        Writing raw HTML can be tedious and repetitive. EHTM eliminates closing tags and uses 
+                        indentation-based structure, making coding up to <strong>50% faster</strong>. 
+                        As a compiled executable, it requires zero setup -- just download and run.
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">HTML vs EHTM Comparison</div>
+                    <div class="comparison-grid">
+                        <div>
+                            <span class="col-label html-label">Standard HTML</span>
+                            <div class="code-block">
+                                <span class="lang-tag">HTML</span>
+                                <span class="tag">&lt;div</span> <span class="attr">id=</span><span class="string">"main"</span> <span class="attr">class=</span><span class="string">"container"</span><span class="tag">&gt;</span>
+                                  <span class="tag">&lt;h1&gt;</span>Hello World<span class="tag">&lt;/h1&gt;</span>
+                                  <span class="tag">&lt;p&gt;</span>This is a paragraph.<span class="tag">&lt;/p&gt;</span>
+                                <span class="tag">&lt;/div&gt;</span>
+                            </div>
+                        </div>
+                        <div>
+                            <span class="col-label ehtm-label">EHTM</span>
+                            <div class="code-block">
+                                <span class="lang-tag">EHTM</span>
+                                <span class="tag">div</span><span class="attr">#main</span>.<span class="attr">container</span>
+                                    <span class="tag">h1</span> <span class="string">"Hello World"</span>
+                                    <span class="tag">p</span> <span class="string">"This is a paragraph."</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- Section: installation -->
+            <!-- ========================================== -->
+            <div class="content-section" id="section-installation">
+                <h1 class="section-title">Installation</h1>
+                <p class="section-description">
+                    EHTM is distributed as a <strong>single standalone executable</strong> (<code>ehtm.exe</code>). 
+                    No Python, no package manager, no dependencies are needed.
+                </p>
+
+                <div class="steps">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h4>Download the Executable</h4>
+                            <p>Download <code>ehtm.exe</code> and place it in your project directory 
+                            or any folder included in your system's PATH.</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h4>Verify Installation</h4>
+                            <p>Open a terminal and run:</p>
+                            <div class="code-block">
+                                <span class="lang-tag">CMD</span>
+                                <span class="exe">ehtm</span> --version
+                                <span class="comment"># EHTM Compiler v3.0</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h4>Create Your First File</h4>
+                            <p>Create a new file with the <code>.ehtm</code> extension and start coding.</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">4</div>
+                        <div class="step-content">
+                            <h4>Run the Tests (Optional)</h4>
+                            <p>Verify everything works correctly:</p>
+                            <div class="code-block">
+                                <span class="lang-tag">CMD</span>
+                                <span class="exe">ehtm</span> --test
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="alert alert-success">
+                    <span class="alert-label">READY</span>
+                    <span>You are now ready to use EHTM. Create your first <code>.ehtm</code> file and compile it 
+                    with <code>ehtm input.ehtm</code>.</span>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">System Requirements</div>
+                    <table class="info-table">
+                        <tr>
+                            <th>Platform</th>
+                            <th>Minimum Version</th>
+                            <th>Architecture</th>
+                        </tr>
+                        <tr>
+                            <td>Windows</td>
+                            <td>Windows 10 / Server 2016</td>
+                            <td>x64, x86</td>
+                        </tr>
+                        <tr>
+                            <td>Linux</td>
+                            <td>Kernel 3.10+ (glibc 2.17+)</td>
+                            <td>x64, ARM64</td>
+                        </tr>
+                        <tr>
+                            <td>macOS</td>
+                            <td>macOS 10.13 (High Sierra)</td>
+                            <td>x64, ARM64 (Apple Silicon)</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- Section: quickstart -->
+            <!-- ========================================== -->
+            <div class="content-section" id="section-quickstart">
+                <h1 class="section-title">Quick Start</h1>
+                <p class="section-description">
+                    Build your first web page with EHTM in less than 2 minutes.
+                </p>
+
+                <div class="card">
+                    <div class="card-title">Step 1: Create Your EHTM File</div>
+                    <div class="card-text">
+                        Create a new file named <code>hello.ehtm</code> with the following content:
+                    </div>
+                    <div class="code-block">
+                        <span class="lang-tag">EHTM</span>
+                        <button class="copy-btn" onclick="copyCode(this)">COPY</button>
+                        <span class="tag">html</span> <span class="attr">lang=</span><span class="string">"en"</span>
+                            <span class="tag">head</span>
+                                <span class="tag">meta</span> <span class="attr">charset=</span><span class="string">"UTF-8"</span>
+                                <span class="tag">title</span> <span class="string">"My First Page"</span>
+                            <span class="tag">body</span>
+                                <span class="tag">h1</span> <span class="string">"Hello EHTM!"</span>
+                                <span class="tag">p</span> <span class="string">"This is my first EHTM page."</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Step 2: Compile to HTML</div>
+                    <div class="card-text">
+                        Run the following command in your terminal:
+                    </div>
+                    <div class="code-block">
+                        <span class="lang-tag">CMD</span>
+                        <button class="copy-btn" onclick="copyCode(this)">COPY</button>
+                        <span class="exe">ehtm</span> hello.ehtm
+                    </div>
+                    <div class="card-text">
+                        This generates <code>hello.html</code> which you can open in any browser.
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Step 3: Customize Output</div>
+                    <div class="card-text">
+                        Generate minified output for production:
+                    </div>
+                    <div class="code-block">
+                        <span class="lang-tag">CMD</span>
+                        <button class="copy-btn" onclick="copyCode(this)">COPY</button>
+                        <span class="exe">ehtm</span> hello.ehtm -f minified -o dist/index.html
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- Section: elements -->
+            <!-- ========================================== -->
+            <div class="content-section" id="section-elements">
+                <h1 class="section-title">Elements &amp; Tags</h1>
+                <p class="section-description">
+                    In EHTM, elements start with a tag name and their content is defined by indentation level.
+                </p>
+
+                <div class="card">
+                    <div class="card-title">Nested Elements</div>
+                    <div class="card-text">
+                        Parent-child relationships are determined by <strong>indentation (spaces)</strong>:
+                    </div>
+                    <div class="code-block">
+                        <span class="lang-tag">EHTM</span>
+                        <span class="tag">div</span>
+                            <span class="tag">h1</span> <span class="string">"Page Title"</span>
+                            <span class="tag">p</span> <span class="string">"Paragraph inside div"</span>
+                            <span class="tag">ul</span>
+                                <span class="tag">li</span> <span class="string">"Item 1"</span>
+                                <span class="tag">li</span> <span class="string">"Item 2"</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Void (Self-Closing) Elements</div>
+                    <div class="card-text">
+                        Tags like <code>br</code>, <code>hr</code>, <code>img</code>, <code>input</code> 
+                        are automatically recognized and rendered without closing tags:
+                    </div>
+                    <div class="code-block">
+                        <span class="lang-tag">EHTM</span>
+                        <span class="tag">br</span>
+                        <span class="tag">hr</span>
+                        <span class="tag">img</span> <span class="attr">src=</span><span class="string">"photo.jpg"</span> <span class="attr">alt=</span><span class="string">"A photo"</span>
+                        <span class="tag">input</span> <span class="attr">type=</span><span class="string">"text"</span> <span class="attr">name=</span><span class="string">"username"</span>
+                    </div>
+                    <div class="card-text">
+                        Generated HTML: <code>&lt;br&gt;</code>, <code>&lt;hr&gt;</code>, 
+                        <code>&lt;img src="photo.jpg" alt="A photo"&gt;</code>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- Section: attributes -->
+            <!-- ========================================== -->
+            <div class="content-section" id="section-attributes">
+                <h1 class="section-title">Attributes</h1>
+                <p class="section-description">
+                    Attributes can be defined in two ways: space-separated or inside parentheses.
+                </p>
+
+                <div class="card">
+                    <div class="card-title">Method 1: Space-Separated</div>
+                    <div class="card-text">
+                        Write attributes with spaces before the text content:
+                    </div>
+                    <div class="code-block">
+                        <span class="lang-tag">EHTM</span>
+                        <span class="tag">a</span> <span class="attr">href=</span><span class="string">"/about"</span> <span class="attr">target=</span><span class="string">"_blank"</span> <span class="string">"About Us"</span>
+
+                        <span class="tag">input</span> <span class="attr">type=</span><span class="string">"email"</span> <span class="attr">placeholder=</span><span class="string">"Your email"</span> <span class="attr">required</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Method 2: Parenthesized (Comma-Separated)</div>
+                    <div class="card-text">
+                        Use parentheses and commas for cleaner multi-attribute elements:
+                    </div>
+                    <div class="code-block">
+                        <span class="lang-tag">EHTM</span>
+                        <span class="tag">button</span> (<span class="attr">type=</span><span class="string">"submit"</span>, <span class="attr">class=</span><span class="string">"btn btn-primary"</span>, <span class="attr">disabled</span>) <span class="string">"Submit"</span>
+                    </div>
+                </div>
+
+                <div class="alert alert-info">
+                    <span class="alert-label">NOTE</span>
+                    <span>Boolean attributes (like <code>disabled</code>, <code>required</code>, <code>checked</code>) 
+                    are automatically detected when no value is provided.</span>
+                </div>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- Section: ids-classes -->
+            <!-- ========================================== -->
+            <div class="content-section" id="section-ids-classes">
+                <h1 class="section-title">IDs &amp; Classes</h1>
+                <p class="section-description">
+                    Use CSS-like syntax: <code>#</code> for ID and <code>.</code> for class.
+                </p>
+
+                <div class="code-block">
+                    <span class="lang-tag">EHTM</span>
+                    <span class="tag">div</span><span class="attr">#main</span>.<span class="attr">container</span>.<span class="attr">highlight</span> <span class="string">"Content"</span>
+
+                    <span class="comment"># Generates: &lt;div id="main" class="container highlight"&gt;Content&lt;/div&gt;</span>
+
+                    <span class="tag">section</span><span class="attr">#hero</span>.<span class="attr">full-width</span>
+                        <span class="tag">h1</span> <span class="string">"Hero Title"</span>
+                        <span class="tag">p</span>.<span class="attr">lead</span> <span class="string">"Hero description"</span>
+                </div>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- Section: text-content -->
+            <!-- ========================================== -->
+            <div class="content-section" id="section-text-content">
+                <h1 class="section-title">Text Content</h1>
+                <p class="section-description">
+                    Text is placed inside quotes <code>" "</code> or <code>' '</code> after the tag and its attributes.
+                </p>
+
+                <div class="code-block">
+                    <span class="lang-tag">EHTM</span>
+                    <span class="tag">h1</span> <span class="string">"This is a heading"</span>
+                    <span class="tag">p</span> <span class="string">"This is a paragraph with &lt;strong&gt;bold text&lt;/strong&gt;."</span>
+                    <span class="tag">a</span> <span class="attr">href=</span><span class="string">"/link"</span> <span class="string">"Click here"</span>
+                </div>
+
+                <div class="alert alert-warning">
+                    <span class="alert-label">IMPORTANT</span>
+                    <span>If your text contains quotes, escape them with <code>\</code>: 
+                    <code>"He said \"Hello\""</code>. Alternatively, use single quotes for the wrapper: 
+                    <code>'He said "Hello"'</code>.</span>
+                </div>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- Section: variables -->
+            <!-- ========================================== -->
+            <div class="content-section" id="section-variables">
+                <h1 class="section-title">Variables</h1>
+                <p class="section-description">
+                    Define reusable values with the <code>set</code> keyword and reference them 
+                    using <code>${variable_name}</code>.
+                </p>
+
+                <div class="code-block">
+                    <span class="lang-tag">EHTM</span>
+                    <span class="keyword">set</span> <span class="var">page_title</span> = <span class="string">"My Website"</span>
+                    <span class="keyword">set</span> <span class="var">year</span> = <span class="string">"2024"</span>
+
+                    <span class="tag">html</span>
+                        <span class="tag">head</span>
+                            <span class="tag">title</span> <span class="string">"</span><span class="var">${page_title}</span><span class="string">"</span>
+                        <span class="tag">body</span>
+                            <span class="tag">h1</span> <span class="string">"Welcome to </span><span class="var">${page_title}</span><span class="string">"</span>
+                            <span class="tag">footer</span>
+                                <span class="tag">p</span> <span class="string">"&copy; </span><span class="var">${year}</span><span class="string"> All rights reserved."</span>
+                </div>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- Section: includes -->
+            <!-- ========================================== -->
+            <div class="content-section" id="section-includes">
+                <h1 class="section-title">Components (Include)</h1>
+                <p class="section-description">
+                    Use the <code>include</code> directive to import other EHTM files for component-based architecture.
+                </p>
+
+                <div class="code-block">
+                    <span class="lang-tag">EHTM</span>
+                    <span class="comment"># main.ehtm</span>
+                    <span class="tag">html</span>
+                        <span class="tag">head</span>
+                            <span class="keyword">include</span> <span class="string">"components/head.ehtm"</span>
+                        <span class="tag">body</span>
+                            <span class="keyword">include</span> <span class="string">"components/header.ehtm"</span>
+                            <span class="tag">main</span>
+                                <span class="tag">h1</span> <span class="string">"Page Content"</span>
+                            <span class="keyword">include</span> <span class="string">"components/footer.ehtm"</span>
+                </div>
+
+                <div class="alert alert-warning">
+                    <span class="alert-label">WARNING</span>
+                    <span>Circular includes are detected and will raise an error. Included files share 
+                    the parent's variables.</span>
+                </div>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- Section: comments -->
+            <!-- ========================================== -->
+            <div class="content-section" id="section-comments">
+                <h1 class="section-title">Comments</h1>
+                <p class="section-description">
+                    Comments start with <code>#</code> and extend to the end of the line.
+                </p>
+
+                <div class="code-block">
+                    <span class="lang-tag">EHTM</span>
+                    <span class="comment"># This is a comment</span>
+                    <span class="comment"># TODO: Add navigation items</span>
+
+                    <span class="tag">div</span>.<span class="attr">container</span>
+                        <span class="tag">h1</span> <span class="string">"Title"</span>
+                        <span class="comment"># Main content section</span>
+                        <span class="tag">p</span> <span class="string">"Content goes here"</span>
+                </div>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- Section: pretty-output -->
+            <!-- ========================================== -->
+            <div class="content-section" id="section-pretty-output">
+                <h1 class="section-title">Pretty Output</h1>
+                <p class="section-description">
+                    The <code>pretty</code> format generates well-indented, human-readable HTML.
+                </p>
+
+                <div class="code-block">
+                    <span class="lang-tag">CMD</span>
+                    <button class="copy-btn" onclick="copyCode(this)">COPY</button>
+                    <span class="exe">ehtm</span> input.ehtm -f pretty -i 4
+                </div>
+
+                <table class="info-table">
+                    <tr><th>Option</th><th>Description</th><th>Default</th></tr>
+                    <tr><td><code>-f pretty</code></td><td>Enable pretty output format</td><td>Enabled</td></tr>
+                    <tr><td><code>-i &lt;number&gt;</code></td><td>Indentation size in spaces</td><td>4</td></tr>
+                </table>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- Section: minified-output -->
+            <!-- ========================================== -->
+            <div class="content-section" id="section-minified-output">
+                <h1 class="section-title">Minified Output</h1>
+                <p class="section-description">
+                    The <code>minified</code> format removes all unnecessary whitespace for production.
+                </p>
+
+                <div class="code-block">
+                    <span class="lang-tag">CMD</span>
+                    <button class="copy-btn" onclick="copyCode(this)">COPY</button>
+                    <span class="exe">ehtm</span> input.ehtm -f minified -o dist/output.min.html
+                </div>
+
+                <div class="alert alert-success">
+                    <span class="alert-label">PRO TIP</span>
+                    <span>Use <code>--no-doctype</code> if injecting the output into an existing template.</span>
+                </div>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- Section: cli-basic -->
+            <!-- ========================================== -->
+            <div class="content-section" id="section-cli-basic">
+                <h1 class="section-title">Basic CLI Commands</h1>
+                <p class="section-description">
+                    All commands use the <code>ehtm</code> executable directly.
+                </p>
+
+                <table class="info-table">
+                    <tr><th>Command</th><th>Description</th></tr>
+                    <tr><td><code>ehtm file.ehtm</code></td><td>Compile a single file to HTML</td></tr>
+                    <tr><td><code>ehtm file.ehtm -o out.html</code></td><td>Specify custom output filename</td></tr>
+                    <tr><td><code>ehtm -d ./src -o ./dist</code></td><td>Compile an entire directory</td></tr>
+                    <tr><td><code>ehtm --create-sample</code></td><td>Generate a sample EHTM file</td></tr>
+                    <tr><td><code>ehtm --test</code></td><td>Run internal compiler tests</td></tr>
+                    <tr><td><code>ehtm --version</code></td><td>Show compiler version</td></tr>
+                    <tr><td><code>ehtm --help</code></td><td>Display help information</td></tr>
+                </table>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- Section: cli-advanced -->
+            <!-- ========================================== -->
+            <div class="content-section" id="section-cli-advanced">
+                <h1 class="section-title">Advanced CLI Commands</h1>
+                <p class="section-description">
+                    Additional options for fine-tuning compilation.
+                </p>
+
+                <table class="info-table">
+                    <tr><th>Option</th><th>Description</th></tr>
+                    <tr><td><code>-f, --format</code></td><td>Output format: pretty, minified, or preserve</td></tr>
+                    <tr><td><code>-i, --indent</code></td><td>Indentation size (default: 4)</td></tr>
+                    <tr><td><code>-e, --encoding</code></td><td>File encoding (default: utf-8)</td></tr>
+                    <tr><td><code>--no-doctype</code></td><td>Omit &lt;!DOCTYPE html&gt; from output</td></tr>
+                    <tr><td><code>-v, --verbose</code></td><td>Enable verbose logging and detailed error traces</td></tr>
+                </table>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- Section: cli-watch -->
+            <!-- ========================================== -->
+            <div class="content-section" id="section-cli-watch">
+                <h1 class="section-title">Watch Mode</h1>
+                <p class="section-description">
+                    Monitor a directory and automatically recompile on changes.
+                </p>
+
+                <div class="code-block">
+                    <span class="lang-tag">CMD</span>
+                    <button class="copy-btn" onclick="copyCode(this)">COPY</button>
+                    <span class="exe">ehtm</span> -w ./templates
+                </div>
+
+                <div class="card-text">
+                    Press <strong>Ctrl+C</strong> to stop watching. Combine with <code>-f pretty</code> 
+                    for readable output during development.
+                </div>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- Section: example-basic -->
+            <!-- ========================================== -->
+            <div class="content-section" id="section-example-basic">
+                <h1 class="section-title">Example: Simple Page</h1>
+                <p class="section-description">A minimal EHTM page demonstrating basic structure.</p>
+
+                <div class="code-block">
+                    <span class="lang-tag">EHTM</span>
+                    <button class="copy-btn" onclick="copyCode(this)">COPY</button>
+                    <span class="tag">html</span> <span class="attr">lang=</span><span class="string">"en"</span>
+                        <span class="tag">head</span>
+                            <span class="tag">meta</span> <span class="attr">charset=</span><span class="string">"UTF-8"</span>
+                            <span class="tag">meta</span> <span class="attr">name=</span><span class="string">"viewport"</span> <span class="attr">content=</span><span class="string">"width=device-width, initial-scale=1.0"</span>
+                            <span class="tag">title</span> <span class="string">"My Page"</span>
+                            <span class="tag">link</span> <span class="attr">rel=</span><span class="string">"stylesheet"</span> <span class="attr">href=</span><span class="string">"style.css"</span>
+                        <span class="tag">body</span>
+                            <span class="tag">header</span>
+                                <span class="tag">h1</span> <span class="string">"Welcome to My Page"</span>
+                            <span class="tag">main</span>
+                                <span class="tag">p</span> <span class="string">"This is a simple page built with EHTM."</span>
+                            <span class="tag">footer</span>
+                                <span class="tag">p</span> <span class="string">"&copy; 2024 My Website"</span>
+                </div>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- Section: example-form -->
+            <!-- ========================================== -->
+            <div class="content-section" id="section-example-form">
+                <h1 class="section-title">Example: Contact Form</h1>
+                <p class="section-description">A contact form demonstrating attributes and form elements.</p>
+
+                <div class="code-block">
+                    <span class="lang-tag">EHTM</span>
+                    <button class="copy-btn" onclick="copyCode(this)">COPY</button>
+                    <span class="tag">form</span> (<span class="attr">action=</span><span class="string">"/submit"</span>, <span class="attr">method=</span><span class="string">"POST"</span>)
+                        <span class="tag">div</span>.<span class="attr">form-group</span>
+                            <span class="tag">label</span> <span class="attr">for=</span><span class="string">"name"</span> <span class="string">"Full Name"</span>
+                            <span class="tag">input</span> (<span class="attr">type=</span><span class="string">"text"</span>, <span class="attr">id=</span><span class="string">"name"</span>, <span class="attr">required</span>)
+                        <span class="tag">div</span>.<span class="attr">form-group</span>
+                            <span class="tag">label</span> <span class="attr">for=</span><span class="string">"email"</span> <span class="string">"Email Address"</span>
+                            <span class="tag">input</span> (<span class="attr">type=</span><span class="string">"email"</span>, <span class="attr">id=</span><span class="string">"email"</span>, <span class="attr">required</span>)
+                        <span class="tag">div</span>.<span class="attr">form-group</span>
+                            <span class="tag">label</span> <span class="attr">for=</span><span class="string">"message"</span> <span class="string">"Message"</span>
+                            <span class="tag">textarea</span> (<span class="attr">id=</span><span class="string">"message"</span>, <span class="attr">rows=</span><span class="string">"5"</span>) <span class="string">""</span>
+                        <span class="tag">button</span> (<span class="attr">type=</span><span class="string">"submit"</span>, <span class="attr">class=</span><span class="string">"btn btn-primary"</span>) <span class="string">"Send Message"</span>
+                </div>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- Section: example-blog -->
+            <!-- ========================================== -->
+            <div class="content-section" id="section-example-blog">
+                <h1 class="section-title">Example: Blog Page</h1>
+                <p class="section-description">A blog layout using variables for dynamic content.</p>
+
+                <div class="code-block">
+                    <span class="lang-tag">EHTM</span>
+                    <button class="copy-btn" onclick="copyCode(this)">COPY</button>
+                    <span class="keyword">set</span> <span class="var">blog_title</span> = <span class="string">"My Tech Blog"</span>
+                    <span class="keyword">set</span> <span class="var">author</span> = <span class="string">"John Doe"</span>
+                    <span class="keyword">set</span> <span class="var">post_date</span> = <span class="string">"Jan 15, 2024"</span>
+
+                    <span class="tag">article</span>.<span class="attr">blog-post</span>
+                        <span class="tag">header</span>
+                            <span class="tag">h1</span> <span class="string">"</span><span class="var">${blog_title}</span><span class="string">"</span>
+                            <span class="tag">div</span>.<span class="attr">meta</span>
+                                <span class="tag">span</span> <span class="string">"By </span><span class="var">${author}</span><span class="string">"</span>
+                                <span class="tag">span</span> <span class="string">"Published: </span><span class="var">${post_date}</span><span class="string">"</span>
+                        <span class="tag">div</span>.<span class="attr">content</span>
+                            <span class="tag">p</span> <span class="string">"Blog post content goes here..."</span>
+                </div>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- Section: example-email -->
+            <!-- ========================================== -->
+            <div class="content-section" id="section-example-email">
+                <h1 class="section-title">Example: Email Template</h1>
+                <p class="section-description">HTML email template with inline styles.</p>
+
+                <div class="code-block">
+                    <span class="lang-tag">EHTM</span>
+                    <button class="copy-btn" onclick="copyCode(this)">COPY</button>
+                    <span class="keyword">set</span> <span class="var">company</span> = <span class="string">"ACME Corp"</span>
+                    <span class="keyword">set</span> <span class="var">user</span> = <span class="string">"Valued Customer"</span>
+
+                    <span class="tag">table</span> (<span class="attr">width=</span><span class="string">"100%"</span>, <span class="attr">style=</span><span class="string">"background:#f4f4f4;font-family:Arial"</span>)
+                        <span class="tag">tr</span>
+                            <span class="tag">td</span> (<span class="attr">align=</span><span class="string">"center"</span>, <span class="attr">style=</span><span class="string">"padding:20px"</span>)
+                                <span class="tag">div</span> (<span class="attr">style=</span><span class="string">"max-width:600px;background:white;border-radius:8px;padding:30px"</span>)
+                                    <span class="tag">h1</span> <span class="string">"Hello </span><span class="var">${user}</span><span class="string">!"</span>
+                                    <span class="tag">p</span> <span class="string">"Thank you for choosing </span><span class="var">${company}</span><span class="string">."</span>
+                </div>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- Section: cheatsheet -->
+            <!-- ========================================== -->
+            <div class="content-section" id="section-cheatsheet">
+                <h1 class="section-title">Cheatsheet</h1>
+                <p class="section-description">Quick reference for common EHTM syntax.</p>
+
+                <table class="info-table">
+                    <tr><th>Feature</th><th>Syntax</th><th>Example</th></tr>
+                    <tr><td>Element</td><td><code>tagname</code></td><td><code>div</code></td></tr>
+                    <tr><td>ID</td><td><code>#idname</code></td><td><code>div#main</code></td></tr>
+                    <tr><td>Class</td><td><code>.classname</code></td><td><code>div.container</code></td></tr>
+                    <tr><td>Text Content</td><td><code>"text"</code></td><td><code>p "Hello"</code></td></tr>
+                    <tr><td>Attribute</td><td><code>name="value"</code></td><td><code>a href="/link"</code></td></tr>
+                    <tr><td>Parenthesized Attrs</td><td><code>(attr1="v1", attr2)</code></td><td><code>input (type="text", required)</code></td></tr>
+                    <tr><td>Variable Definition</td><td><code>set name = "value"</code></td><td><code>set title = "Home"</code></td></tr>
+                    <tr><td>Variable Usage</td><td><code>${name}</code></td><td><code>title "${title}"</code></td></tr>
+                    <tr><td>Include</td><td><code>include "path"</code></td><td><code>include "header.ehtm"</code></td></tr>
+                    <tr><td>Comment</td><td><code># comment</code></td><td><code># TODO: update</code></td></tr>
+                    <tr><td>Nesting</td><td>Indent (2 or 4 spaces)</td><td>See examples above</td></tr>
+                </table>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- Section: errors -->
+            <!-- ========================================== -->
+            <div class="content-section" id="section-errors">
+                <h1 class="section-title">Common Errors</h1>
+                <p class="section-description">Troubleshooting guide for frequent compilation errors.</p>
+
+                <div class="card">
+                    <div class="card-title">Undefined Variable</div>
+                    <div class="card-text">
+                        <strong>Error:</strong> <code>Undefined variable: 'title'. Did you forget to declare it with 'set'?</code><br>
+                        <strong>Solution:</strong> Add <code>set title = "value"</code> at the top of your file.
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Inconsistent Indentation</div>
+                    <div class="card-text">
+                        <strong>Error:</strong> <code>Inconsistent indentation level</code><br>
+                        <strong>Solution:</strong> Use consistent spacing. 4 spaces per level recommended. Do not mix tabs and spaces.
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">File Not Found</div>
+                    <div class="card-text">
+                        <strong>Error:</strong> <code>Included file not found: 'header.ehtm'</code><br>
+                        <strong>Solution:</strong> Check the path is correct and relative to the current file.
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">'ehtm' is not recognized</div>
+                    <div class="card-text">
+                        <strong>Error:</strong> <code>'ehtm' is not recognized as an internal or external command</code><br>
+                        <strong>Solution:</strong> Add the folder containing <code>ehtm.exe</code> to your system PATH, 
+                        or use the full path: <code>C:\tools\ehtm.exe input.ehtm</code>.
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- Section: faq -->
+            <!-- ========================================== -->
+            <div class="content-section" id="section-faq">
+                <h1 class="section-title">Frequently Asked Questions</h1>
+                <p class="section-description">Answers to common questions about EHTM.</p>
+
+                <div class="card">
+                    <div class="card-title">Do I need Python installed to use EHTM?</div>
+                    <div class="card-text">
+                        No. EHTM is distributed as a standalone executable (<code>ehtm.exe</code>). 
+                        It includes all necessary components and requires no runtime dependencies.
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Can I use EHTM on Windows, Mac, and Linux?</div>
+                    <div class="card-text">
+                        Yes. Platform-specific executables are available for Windows (<code>.exe</code>), 
+                        macOS, and Linux. All versions have identical functionality.
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">How do I update EHTM?</div>
+                    <div class="card-text">
+                        Simply download the latest <code>ehtm.exe</code> and replace the old file. 
+                        Your <code>.ehtm</code> source files remain unchanged and compatible.
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Can I use JavaScript and CSS with EHTM?</div>
+                    <div class="card-text">
+                        Yes. EHTM generates standard HTML. Include <code>&lt;script&gt;</code> and 
+                        <code>&lt;link&gt;</code> tags as usual. Inline styles work identically to HTML.
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Is EHTM production-ready?</div>
+                    <div class="card-text">
+                        Yes. The compiler generates clean, standards-compliant HTML. Use the 
+                        <code>minified</code> format for production deployments. Always validate 
+                        generated HTML before deploying.
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- ============================================ -->
+    <!-- SCRIPTS -->
+    <!-- ============================================ -->
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('show');
+        }
+
+        function closeSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            sidebar.classList.remove('open');
+            overlay.classList.remove('show');
+        }
+
+        function toggleCategory(headerElement) {
+            headerElement.parentElement.classList.toggle('open');
+        }
+
+        function showSection(sectionId, navItemElement) {
+            document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+            const target = document.getElementById('section-' + sectionId);
+            if (target) target.classList.add('active');
+            
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            if (navItemElement) navItemElement.classList.add('active');
+            
+            updateBreadcrumb(navItemElement);
+            document.querySelector('.main-content').scrollTo({ top: 0, behavior: 'smooth' });
+            
+            if (window.innerWidth <= 768) closeSidebar();
+        }
+
+        function updateBreadcrumb(navItemElement) {
+            if (!navItemElement) return;
+            const category = navItemElement.closest('.nav-category');
+            const catHeader = category ? category.querySelector('.nav-category-header span:first-child') : null;
+            const catName = catHeader ? catHeader.textContent.trim() : 'Documentation';
+            const secName = navItemElement.textContent.replace('NEW', '').trim();
+            document.getElementById('breadcrumbCategory').textContent = catName;
+            document.getElementById('breadcrumbSection').textContent = secName;
+        }
+
+        function searchDocs() {
+            const query = document.getElementById('searchInput').value.toLowerCase().trim();
+            const navItems = document.querySelectorAll('.nav-item');
+            const categories = document.querySelectorAll('.nav-category');
+            
+            if (!query) {
+                navItems.forEach(i => i.style.display = '');
+                categories.forEach(c => {
+                    c.classList.remove('open');
+                    const cat = c.getAttribute('data-category');
+                    if (cat === 'getting-started' || cat === 'syntax') c.classList.add('open');
+                });
+                return;
+            }
+            
+            categories.forEach(c => c.classList.add('open'));
+            navItems.forEach(item => {
+                item.style.display = item.textContent.toLowerCase().includes(query) ? '' : 'none';
+            });
+        }
+
+        function copyCode(buttonElement) {
+            const codeBlock = buttonElement.closest('.code-block');
+            let text = '';
+            codeBlock.childNodes.forEach(node => {
+                if (node.nodeType === Node.TEXT_NODE) text += node.textContent;
+                else if (node.nodeType === Node.ELEMENT_NODE && 
+                        !node.classList.contains('lang-tag') && 
+                        !node.classList.contains('copy-btn')) {
+                    text += node.textContent;
+                }
+            });
+            text = text.trim();
+            
+            navigator.clipboard.writeText(text).then(() => {
+                const orig = buttonElement.textContent;
+                buttonElement.textContent = 'COPIED!';
+                buttonElement.style.background = 'rgba(16, 185, 129, 0.2)';
+                buttonElement.style.borderColor = 'rgba(16, 185, 129, 0.4)';
+                setTimeout(() => {
+                    buttonElement.textContent = orig;
+                    buttonElement.style.background = '';
+                    buttonElement.style.borderColor = '';
+                }, 2000);
+            }).catch(() => {
+                buttonElement.textContent = 'ERROR';
+                setTimeout(() => { buttonElement.textContent = 'COPY'; }, 1500);
+            });
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if ((e.ctrlKey || e.metaKey) && (e.key === 'k' || e.key === '/')) {
+                e.preventDefault();
+                document.getElementById('searchInput').focus();
+            }
+            if (e.key === 'Escape') closeSidebar();
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const intro = document.getElementById('section-intro');
+            const navItem = document.querySelector('.nav-item[data-section="intro"]');
+            if (intro && navItem) {
+                intro.classList.add('active');
+                navItem.classList.add('active');
+                updateBreadcrumb(navItem);
+            }
+        });
+
+        let resizeTimer;
+        window.addEventListener('resize', function() {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(function() {
+                if (window.innerWidth > 768) closeSidebar();
+            }, 250);
+        });
+    </script>
+
+</body>
+</html>
